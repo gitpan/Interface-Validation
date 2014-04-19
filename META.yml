@@ -1,0 +1,30 @@
+---
+abstract: 'Hierarchical Data Validation Ã  la Moose'
+author:
+  - 'Al Newkirk <anewkirk@ana.io>'
+build_requires:
+  perl: v5.14.2
+configure_requires:
+  ExtUtils::MakeMaker: 6.30
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 5.015, CPAN::Meta::Converter version 2.132830'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Interface-Validation
+requires:
+  Bubblegum: 0.27
+  Class::Forward: 0.100006
+  Class::Load: 0.21
+  Devel::StackTrace: 1.31
+  Function::Parameters: 1.0401
+  Hash::Flatten: 1.19
+  Moose: 2.1204
+  perl: v5.14.2
+resources:
+  bugtracker: https://github.com/alnewkirk/Interface-Validation/issues
+  homepage: https://github.com/alnewkirk/Interface-Validation
+  repository: git://github.com/alnewkirk/Interface-Validation.git
+version: 0.01_01
+x_authority: cpan:AWNCORP

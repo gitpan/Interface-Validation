@@ -1,0 +1,49 @@
+# NAME
+
+Interface::Validation - Hierarchical Data Validation à la Moose
+
+# VERSION
+
+version 0.01\_01
+
+# SYNOPSIS
+
+    use Interface::Validation;
+
+# DESCRIPTION
+
+Interface::Validation is an scalable data validation library with interfaces for
+applications of all sizes. The most common usage of Interface::Validation is to
+transform class namespaces into data validation domains where consistency and
+reuse are primary objectives. Interface::Validation provides an extensible
+framework for defining reusable data validation rules. This library is based-on
+the architectural pattern found in [Validation::Class](http://search.cpan.org/perldoc?Validation::Class) and is a Moose-based
+implementation of its successor [Validation::Interface](http://search.cpan.org/perldoc?Validation::Interface). It ships with a
+complete set of pre-defined validations and filters referred to as directives.
+__Note: This is an early release available for testing and feedback and as such
+is subject to change.__
+
+The main features included in this framework are; hierarchical data validation;
+trait-like validation rules; validation templates; enabling input filtering
+per-validator before and after validation; a DSL for domain-modeling supporting
+class inheritance; overriding default error messages with localization support;
+creating custom validators; creating custom input filters; a simple plugin
+system; and much more. Interface::Validation promotes DRY (don't repeat
+yourself) code. The main benefit in using Interface::Validation is that the
+architecture is designed to increase the consistency and ease of validating
+hierarchical data input.
+
+# SEE ALSO
+
+[Interface::Validation::Whitepaper](http://search.cpan.org/perldoc?Interface::Validation::Whitepaper), [Interface::Validation::Cookbook](http://search.cpan.org/perldoc?Interface::Validation::Cookbook).
+
+# AUTHOR
+
+Al Newkirk <anewkirk@ana.io>
+
+# COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2014 by Al Newkirk.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.

@@ -1,0 +1,204 @@
+#!/usr/bin/env perl
+
+BEGIN {
+    use FindBin;
+    use lib $FindBin::Bin . '/../lib';
+}
+
+use strict;
+use warnings;
+
+use Path::Class;
+
+use Data::Section::Simple qw(get_data_section);
+use String::TT qw(tt strip);
+use feature 'say';
+
+my $root = dir $FindBin::Bin . '/..';
+
+my %controls = (
+    alias       => 'Interface::Validation::Directive::Alias',
+    default     => 'Interface::Validation::Directive::Default',
+    error       => 'Interface::Validation::Directive::Error',
+    errors      => 'Interface::Validation::Directive::Errors',
+    filter      => 'Interface::Validation::Directive::Filter',
+    filtering   => 'Interface::Validation::Directive::Filtering',
+    label       => 'Interface::Validation::Directive::Label',
+    messages    => 'Interface::Validation::Directive::Messages',
+    mixin       => 'Interface::Validation::Directive::Mixin',
+    mixin_field => 'Interface::Validation::Directive::MixinField',
+    multiples   => 'Interface::Validation::Directive::Multiples',
+    name        => 'Interface::Validation::Directive::Name',
+    readonly    => 'Interface::Validation::Directive::Readonly',
+    required    => 'Interface::Validation::Directive::Required',
+    toggle      => 'Interface::Validation::Directive::Toggle',
+    value       => 'Interface::Validation::Directive::Value',
+);
+
+my %validators = (
+    between     => 'Interface::Validation::Directive::Validator::Between',
+    city        => 'Interface::Validation::Directive::Validator::City',
+    creditcard  => 'Interface::Validation::Directive::Validator::Creditcard',
+    date        => 'Interface::Validation::Directive::Validator::Date',
+    decimal     => 'Interface::Validation::Directive::Validator::Decimal',
+    depends_on  => 'Interface::Validation::Directive::Validator::DependsOn',
+    email       => 'Interface::Validation::Directive::Validator::Email',
+    hostname    => 'Interface::Validation::Directive::Validator::Hostname',
+    length      => 'Interface::Validation::Directive::Validator::Length',
+    matches     => 'Interface::Validation::Directive::Validator::Matches',
+    max_alpha   => 'Interface::Validation::Directive::Validator::MaxAlpha',
+    max_digits  => 'Interface::Validation::Directive::Validator::MaxDigits',
+    max_length  => 'Interface::Validation::Directive::Validator::MaxLength',
+    max_sum     => 'Interface::Validation::Directive::Validator::MaxSum',
+    max_symbols => 'Interface::Validation::Directive::Validator::MaxSymbols',
+    min_alpha   => 'Interface::Validation::Directive::Validator::MinAlpha',
+    min_digits  => 'Interface::Validation::Directive::Validator::MinDigits',
+    min_length  => 'Interface::Validation::Directive::Validator::MinLength',
+    min_sum     => 'Interface::Validation::Directive::Validator::MinSum',
+    min_symbols => 'Interface::Validation::Directive::Validator::MinSymbols',
+    options     => 'Interface::Validation::Directive::Validator::Options',
+    pattern     => 'Interface::Validation::Directive::Validator::Pattern',
+    ssn         => 'Interface::Validation::Directive::Validator::SSN',
+    state       => 'Interface::Validation::Directive::Validator::State',
+    telephone   => 'Interface::Validation::Directive::Validator::Telephone',
+    time        => 'Interface::Validation::Directive::Validator::Time',
+    uuid        => 'Interface::Validation::Directive::Validator::UUID',
+    validation  => 'Interface::Validation::Directive::Validator::Validation',
+    zipcode     => 'Interface::Validation::Directive::Validator::Zipcode',
+);
+
+my %filters = (
+    alpha         => 'Interface::Validation::Directive::Filter::Alpha',
+    alpha_numeric => 'Interface::Validation::Directive::Filter::AlphaNumeric',
+    autocase      => 'Interface::Validation::Directive::Filter::Autocase',
+    capitalize    => 'Interface::Validation::Directive::Filter::Capitalize',
+    currency      => 'Interface::Validation::Directive::Filter::Currency',
+    decimal       => 'Interface::Validation::Directive::Filter::Decimal',
+    lowercase     => 'Interface::Validation::Directive::Filter::Lowercase',
+    numeric       => 'Interface::Validation::Directive::Filter::Numeric',
+    strip         => 'Interface::Validation::Directive::Filter::Strip',
+    titlecase     => 'Interface::Validation::Directive::Filter::Titlecase',
+    trim          => 'Interface::Validation::Directive::Filter::Trim',
+    uppercase     => 'Interface::Validation::Directive::Filter::Uppercase',
+);
+
+
+sub execute {
+    my ($routine, %collection) = @_;
+    while (my($key, $val) = each %collection) {
+        my $name  = $key;
+        my $cname = $val;
+
+        my $cfile = $cname;
+        $cfile = $cfile =~ s/::/\//gr =~ s/$/.pm/r;
+
+        my $tfile = lc $cfile;
+        $tfile = $tfile =~ s/\w+\.pm$/$name.t/r;
+
+        no strict 'refs';
+        &{$routine}($name, $cname, $cfile, $tfile);
+    }
+}
+
+sub make_tests {
+    my ($name, $cname, $cfile, $tfile) = @_;
+    return if $tfile =~ /(between|required)\.t$/;
+
+    my $sname = $cname;
+    $sname =~ s/^Interface::Validation::Directive::Validator:://;
+
+    my $text = strip tt get_data_section 'validator.skiptest';
+    my $file = $root->file("t/$tfile");
+    print {$file->openw} $text;
+}
+
+sub make_validators {
+    my ($name, $cname, $cfile, $tfile) = @_;
+    my $sname = $cname;
+
+    $sname =~ s/^Interface::Validation::Directive::Validator:://;
+
+    my $text = strip tt get_data_section 'validator.object';
+    my $file = $root->file("lib/$cfile");
+    print {$file->openw} $text;
+}
+
+execute make_tests => %validators;
+
+__DATA__
+
+@@ validator.object
+
+# ABSTRACT: Interface::Validation Validator Directive [% sname %]
+package [% cname %];
+
+use Bubblegum::Class;
+use Bubblegum::Constraints -minimal;
+
+# VERSION
+
+extends 'Interface::Validation::Directive';
+with    'Interface::Validation::DirectiveRole::Execute::OnValidate';
+with    'Interface::Validation::DirectiveRole::Field';
+with    'Interface::Validation::DirectiveRole::Mixin::Default';
+with    'Interface::Validation::DirectiveRole::Validator';
+
+sub validate {
+    # TODO ...
+}
+
+@@ validator.test
+
+use strict;
+use warnings;
+
+use Test::More;
+use [% cname %];
+use Interface::Validation::Execution;
+use Interface::Validation::Specification;
+
+my $class     = '[% cname %]';
+my @attrs     = qw(args args_list);
+my @methods   = qw(error exception validate);
+
+can_ok $class => ('new', @attrs, @methods);
+
+my $spec = Interface::Validation::Specification->new;
+
+my $rule = $spec->field(
+    rule_1 => (
+        [% name %] => 1
+    )
+);
+
+my $document = $spec->document(
+    document_1 => (
+        criteria => {
+            '...' => '[% name %]',
+        }
+    )
+);
+
+my $params = {
+    # ...
+};
+
+my $exec = $spec->validate(document_1 => $params);
+my $errors = $exec->errors;
+is $errors->count, 0, 'no errors found';
+
+$exec = $spec->validate(document_1 => $params);
+$errors = $exec->errors;
+is $errors->count, 1, '1 error found';
+my $error = $errors->get('...#[% name %]');
+isa_ok $error, 'Interface::Validation::Execution::Error',
+    'failure ...#[% name %] found';
+is $error->data_point, 'name', 'error data_point expected';
+is $error->data_value, undef, 'error data_value expected';
+
+done_testing;
+
+@@ validator.skiptest
+use Test::More skip_all => 'not yet implemented';
+
+done_testing;
